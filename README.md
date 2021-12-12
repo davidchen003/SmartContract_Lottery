@@ -1,3 +1,5 @@
+[Course TOC, code, resources, etc](https://github.com/smartcontractkit/full-blockchain-solidity-course-py/blob/main/README.md#lesson-7-smartcontract-lottery)
+
 # Into
 
 - User can enter lottery with ETH based on a USD fee
@@ -109,3 +111,17 @@
 - we are confident we can deploy this to testnet, but let's do some interaction with the contracts first.
 
 **Commit 2**
+
+## Python Lottery Scripts/Functions
+
+- start_lottery()
+- enter_lottery()
+- end_lottery()
+  - need fund the contract with LINK token because we need to get the random number
+  - since it's a common function, create `fund_with_link()` in helpful_script
+    - method 1, use LinkToken we have in contracts/test folder
+    - method 2, use `LinkTokenInterface.sol` in interfaces folder, copied from [chainlink](https://github.com/smartcontractkit/chainlink-mix/blob/master/interfaces/LinkTokenInterface.sol), which will compiled down to a way that brownie knows how to interact with
+
+## Interact with contract
+
+- `$brownie run scripts/deploy_lottery.py`, will only get "0x0000000000000000000000000000000000000000 is the new winner", because there is no Chainlink node on Ganache
