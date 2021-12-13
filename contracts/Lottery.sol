@@ -21,6 +21,8 @@ contract Lottery is Ownable, VRFConsumerBase {
     address payable public recentWinner;
     uint256 public randomness;
 
+    event RequestedRandomness(bytes32 requestId);
+
     constructor(
         address _priceFeedAddress,
         address _vrfCoordinator,
@@ -74,6 +76,7 @@ contract Lottery is Ownable, VRFConsumerBase {
 
         // first step of getting the random number
         bytes32 requestId = requestRandomness(keyhash, fee);
+        emit RequestedRandomness(requestId);
     }
 
     // second step of getting the random number

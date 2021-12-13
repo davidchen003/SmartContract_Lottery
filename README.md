@@ -125,3 +125,46 @@
 ## Interact with contract
 
 - `$brownie run scripts/deploy_lottery.py`, will only get "0x0000000000000000000000000000000000000000 is the new winner", because there is no Chainlink node on Ganache
+
+**Commit 3**
+
+# Testing
+
+- Unit tests: a way of testing the smallest pieces of code in an isolated instance, done in development network
+- integration tests: a way of testing across multiple complex systems, done on testnet
+- typically people add `unit` and `integration` folders under tests folder, but since we only have one file under each, we'll just use script names to differentiate one from another `test_lottery_unit.py` and `test_lottery_integration.py`
+
+## Unit tests, on Ganache
+
+- `brownie test -k test_get_entrance_fee`
+
+  - before adding `if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:`, pass
+  - after, skipped
+
+- add
+
+  - `test_cant_enter_unless_started()`
+  - `test_can_start_and_enter_lottery()`
+  - `test_can_end_lottery()`
+  - `test_can_pick_winner_correctly()`
+    - we need to test the `fulfillRandomness()` in endLottery, and everything in it.
+    - in `VRFCoordinatorMock`, `callBackWithRandomness()` calls `rawFulfillRandomness`, which eventually calls `fulfillRandomness()`
+    - we have to pretend to be a chainlink node to call `callBackWithRandomness()`, which returns the random number and the address of the contract to return the random number to, but also have to pass the requestId of the original call.
+    - however, the `endLottery`, which has the requestId, doesn't return anything. In order to get that info, we need to use **Event**
+
+- **Events** and logs
+
+  - Event is a piece of data executed/stored in the blockchain but are not accessible by any contract. you can kinda of think of them as the print statement of blockchain.
+  - add `event RequestedRandomness(bytes32 requestId);` and `emit RequestedRandomness(requestId);` in `endLottry()` of Lottery.sol
+  - use it in test script, `request_id = transaction.events["RequestedRandomness"]["requestId"]`, to get the `requestId`.
+  - with this requestID, we can pretend to be a chainlink node and use this `callBackWithRandomness()` to dummy getting back a random number from chainlink node.
+
+- do unit test one by one
+  - `brownie test -k test_can_pick_winner_correctly`
+  - etc.
+
+**Commit 4**
+
+## Integration test, on testnet
+
+-
