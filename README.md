@@ -136,7 +136,7 @@
 
 ## Unit tests, on Ganache
 
-- `brownie test -k test_get_entrance_fee`
+- `$brownie test -k test_get_entrance_fee`
 
   - before adding `if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:`, pass
   - after, skipped
@@ -160,11 +160,27 @@
   - with this requestID, we can pretend to be a chainlink node and use this `callBackWithRandomness()` to dummy getting back a random number from chainlink node.
 
 - do unit test one by one
-  - `brownie test -k test_can_pick_winner_correctly`
+  - `$brownie test -k test_can_pick_winner_correctly`
   - etc.
 
 **Commit 4**
 
-## Integration test, on testnet
+## Integration test and deployment, on Rinkeby
 
--
+- `test_lottery_integration.py`
+- make sure `dotenv: .env` in brownie-config.yaml
+- make sure you have LINK token in MetaMask account
+- `$brownie test -k test_can_pick_winner --network rinkeby -s` (`-s` so to have detailed brownie printout)
+
+**Errors**
+
+- unit test `test_can_pick_winner_correctly` pass, but `$brownie run scripts/deploy_lottery.py` has printout `0x0000000000000000000000000000000000000000 is the new winner!`!
+- integration test `$brownie test -k test_can_pick_winner --network rinkeby -s` fail
+  - assert lottery.recentWinner() == account
+  - AssertionError: assert '0x0000000000...0000000000000' == <LocalAccount...FAF140824B0d'>
+  - seems responsed way more than 60seconds! maybe that's the reason?
+- **deployment to Rinkeby** `$brownie run scripts/deploy_lottery.py --network rinkeby`
+  - terminal printout `0x0000000000000000000000000000000000000000 is the new winner!` however
+  - checking the deployed contract (0x92697A4dbA8e35302Fe0e5d2a854158515E94B18) at Rinkeby etherscan -> Contract -> Read Contract -> recentWinner, we'll see the correct winner account
+
+**Commit 5**
